@@ -1,0 +1,39 @@
+workflows:
+  android-workflow:
+    name: Android APK Build
+    max_build_duration: 30
+    environment:
+      flutter: stable
+    scripts:
+      - name: Backup our custom files
+        script: |
+          mkdir -p /tmp/backup
+          cp lib/main.dart /tmp/backup/main.dart
+          cp pubspec.yaml /tmp/backup/pubspec.yaml
+
+      - name: Generate full Flutter project structure
+        script: |
+          cd /tmp
+          flutter create --platforms=android --org com.aiVideoEditor --project-name video_editor_app generated_project
+          cp -r generated_project/android $CM_BUILD_DIR/
+          cp -r generated_project/.metadata $CM_BUILD_DIR/ 2>/dev/null || true
+
+      - name: Restore our custom code
+        script: |
+          cp /tmp/backup/main.dart lib/main.dart
+          cp /tmp/backup/pubspec.yaml pubspec.yaml
+
+      - name: Get dependencies
+        script: |
+          flutter pub get
+
+      - name: Build APK
+        script: |
+          flutter build apk --release
+
+    artifacts:
+      - build/app/outputs/flutter-apk/app-release.apk
+
+    publishing:
+      email:
+        recipients: []
