@@ -18,6 +18,10 @@ workflows:
           cp -r generated_project/android $CM_BUILD_DIR/
           cp -r generated_project/.metadata $CM_BUILD_DIR/ 2>/dev/null || true
 
+      - name: Add internet permission
+        script: |
+          sed -i 's#<application#<uses-permission android:name="android.permission.INTERNET"/>\n    <application#' android/app/src/main/AndroidManifest.xml
+
       - name: Restore our custom code
         script: |
           cp /tmp/backup/main.dart lib/main.dart
